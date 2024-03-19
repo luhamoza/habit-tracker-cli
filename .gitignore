@@ -8,6 +8,13 @@ project.lock.json
 .DS_Store
 *.pyc
 .git
+.nuget/
+_ReSharper.*
+packages/
+artifacts/
+*.userprefs
+*DS_Store
+*.sln.ide
 
 # Visual Studio Code
 .vscode
