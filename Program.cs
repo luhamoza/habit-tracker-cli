@@ -15,10 +15,8 @@ class Program
                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
                  title TEXT NOT NULL,
                  goal INTEGER NOT NULL,
-                 current INTEGER NOT NULL,
-                 target INTEGER NOT NULL)";
+                 current INTEGER NOT NULL)";
             command.ExecuteNonQuery();
-            
             DisplayMenu();
         }
     }
@@ -59,10 +57,49 @@ class Program
            }
        }
     }
+    private static void GoalExplanation()
+    {
+        Console.WriteLine("The goal is the number of times you want to perform the habit in a day.");
+        Console.WriteLine("The current is the number of times you have performed the habit today.");
+    }
     private static void AddHabit()
     {
-        throw new NotImplementedException();
+        var title = AskUser(  out var goal, out var current);
+        using (var connection = new SqliteConnection("Data Source=HabitTracker.db"))
+        {
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"INSERT INTO Habits (title, goal, current)
+                VALUES ($title, $goal, $current)";
+            command.Parameters.AddWithValue("$title", title);
+            command.Parameters.AddWithValue("$goal", goal);
+            command.Parameters.AddWithValue("$current", current);
+            command.ExecuteNonQuery();
+        }
     }
+
+    private static void ValidateIntInput(out int input)
+    {
+        bool isParse = int.TryParse(Console.ReadLine(), out input);
+        while (!isParse)
+        {
+            Console.Write("Invalid input. Please enter a number: ");
+            isParse = int.TryParse(Console.ReadLine(), out input);
+        }
+    }
+    private static string? AskUser(out int goal, out int current)
+    {
+        Console.Write("Enter the title of the habit: ");
+        string? title = Console.ReadLine();
+        GoalExplanation();
+        Console.Write("Enter the goal for the habit: ");
+        ValidateIntInput(out goal);
+        Console.Write("Enter the current progress for the habit: ");
+        ValidateIntInput(out current);
+        return title;
+    }
+
     private static void ViewAllHabits()
     {
         throw new NotImplementedException();
