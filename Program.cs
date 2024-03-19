@@ -60,7 +60,7 @@ class Program
     }
     private static void GoalExplanation()
     {
-        Console.WriteLine("The goal is the number of times you want to perform the habit in a day.");
+        Console.WriteLine("The goal is the number of times you want to perform the habit in a month.");
         Console.WriteLine("The current is the number of times you have performed the habit today.");
     }
     private static void AddHabit()
@@ -122,19 +122,55 @@ class Program
     }
     private static void CreateTable(string row1, string row2, string row3,string row4, int child1, string child2, int child3, int child4)
     {
-        Console.Clear();
         var table = new ConsoleTable(row1, row2, row3,row4);
         table.AddRow(child1, child2, child3, child4);
         table.Write();
     }
     private static void UpdateHabit()
     {
-        throw new NotImplementedException();
-        // TODO - Implement UpdateHabit
+        Console.Write("Which habit would you like to update? Enter the ID: "); 
+        ValidateIntInput(out int id);
+        ValidateMaxId(id);
+        Console.Write("Enter the new current progress for the habit: ");
+        ValidateIntInput(out int current);
+        using (var connection = new SqliteConnection("Data Source=HabitTracker.db"))
+        {
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText = "UPDATE Habits SET current = $current WHERE id = $id";
+            command.Parameters.AddWithValue("$current", current);
+            command.Parameters.AddWithValue("$id", id);
+            command.ExecuteNonQuery();
+        }
+    }
+    private static void ValidateMaxId(int id)
+    {
+        int maxId;
+        using (var connection = new SqliteConnection("Data Source=HabitTracker.db"))
+        {
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT MAX(id) FROM Habits";
+            maxId = Convert.ToInt32(command.ExecuteScalar());
+        }
+        while (id > maxId)
+        {
+            Console.Write("ID does not exist. Please enter a valid ID: ");
+            ValidateIntInput(out id);
+        }
     }
     private static void DeleteHabit()
     {
-        throw new NotImplementedException();
-        // TODO - Implement DeleteHabit
+        Console.Write("Which habit would you like to delete? Enter the ID: ");
+        ValidateIntInput(out int id);
+        ValidateMaxId(id);
+        using (var connection = new SqliteConnection("Data Source=HabitTracker.db"))
+        {
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText = "DELETE FROM Habits WHERE id = $id";
+            command.Parameters.AddWithValue("$id", id);
+            command.ExecuteNonQuery();
+        }
     }
 }
