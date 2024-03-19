@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using ConsoleTables;
+using Microsoft.Data.Sqlite;
 
 namespace HabitTrackerApp;
 
@@ -78,7 +79,6 @@ class Program
             command.ExecuteNonQuery();
         }
     }
-
     private static void ValidateIntInput(out int input)
     {
         bool isParse = int.TryParse(Console.ReadLine(), out input);
@@ -99,17 +99,42 @@ class Program
         ValidateIntInput(out current);
         return title;
     }
-
     private static void ViewAllHabits()
     {
-        throw new NotImplementedException();
+        using (var connection = new SqliteConnection("Data Source=HabitTracker.db"))
+        {
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT * FROM Habits";
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var id = reader.GetInt32(0);
+                    var title = reader.GetString(1);
+                    var goal = reader.GetInt32(2);
+                    var current = reader.GetInt32(3);
+                    CreateTable("#", "Title", "Goal", "Current", id, title, goal, current); 
+                    Console.WriteLine();
+                }
+            }
+        }
+    }
+    private static void CreateTable(string row1, string row2, string row3,string row4, int child1, string child2, int child3, int child4)
+    {
+        Console.Clear();
+        var table = new ConsoleTable(row1, row2, row3,row4);
+        table.AddRow(child1, child2, child3, child4);
+        table.Write();
     }
     private static void UpdateHabit()
     {
         throw new NotImplementedException();
+        // TODO - Implement UpdateHabit
     }
     private static void DeleteHabit()
     {
         throw new NotImplementedException();
+        // TODO - Implement DeleteHabit
     }
 }
